@@ -11,12 +11,12 @@ fn sleep() {
 }
 fn main() {
 let server = TcpListener::bind(LOCAL).expect("Failed to bind to listener");
-let server = server.set_nonblocking(true).expect("failed to set server to non blocking");
+server.set_nonblocking(true).expect("failed to set server to non blocking");
 
-let mut clients = Vec![];
+let mut clients = vec![];
 let (tx,rx) = mpsc::channel::<String>();
 
-loop{
+loop {
 	if let Ok((mut socket, address)) = server.accept() {
 		println!("Client Connected");
 		let tx = tx.clone();
@@ -26,26 +26,26 @@ loop{
 				let mut buff = vec![0; MSG_SIZE];
 				match socket.read_exact(&mut buff){
 					Ok(_) => {
-						let msg = buff.into_iter().Take_while(|&x| x != 0).collect::<Vec<_>>(); 
+						let msg = buff.into_iter().take_while(|&x| x != 0).collect::<Vec<_>>(); 
 						println!("{}: {:?}", address, msg);
 
-						let msg = String.from_utf8(msg).expect("invalid utf8 msg");
+						let msg = String::from_utf8(msg).expect("invalid utf8 msg");
 						tx.send(msg).expect("failed to snd msg to rx");
 					},
-					Err(ref err) err.kind() == ErrorKind::WouldBlock => ();
-					Err (_) => {
+					Err(ref err) if err.kind() == ErrorKind::WouldBlock => (),
+					Err(_) => {
 						println!("Closing conn");
-						break;
+						//break;
 					}
 				}
 			sleep();
 		});
 	}
 	if let Ok(msg) = rx.try_recv() {
-		clients = clients.into_iter().filter_map(mut |client| {
+		clients = clients.into_iter().filter_map( |mut client| {
 		let mut buff = msg.clone().into_bytes();
-		let mut buff = buff.resize(MSG_SIZE,0);	
-		client.write_all(&mut buff).map(|_| client).ok()
+		buff.resize(MSG_SIZE,0);	
+		client.write_all(&buff).map(|_| client).ok()
 	    }).collect::<Vec<_>>();
 	}
 	sleep();

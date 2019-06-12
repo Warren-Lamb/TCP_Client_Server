@@ -1,7 +1,0 @@
-[package]
-name = "TCP_Client_Server"
-version = "0.1.0"
-authors = ["Warren-Lamb <10warren10@gmail.com>"]
-edition = "2018"
-
-[dependencies]
