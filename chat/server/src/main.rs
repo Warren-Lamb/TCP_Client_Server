@@ -4,7 +4,7 @@ use std::sync::mpsc;
 use std::thread;
 
 const MSG_SIZE: usize = 32;
-const LOCAL: &str = "127.0.0.1:5000";
+const LOCAL: &str = "127.0.0.1:6000";
 
 fn sleep() {
 	thread::sleep(::std::time::Duration::from_millis(100));
@@ -22,7 +22,7 @@ loop {
 		let tx = tx.clone();
 		clients.push(socket.try_clone().expect("failed to clone socket"));
 
-		thread::spawn( move || {
+		thread::spawn( move || loop {
 				let mut buff = vec![0; MSG_SIZE];
 				match socket.read_exact(&mut buff){
 					Ok(_) => {
@@ -35,7 +35,7 @@ loop {
 					Err(ref err) if err.kind() == ErrorKind::WouldBlock => (),
 					Err(_) => {
 						println!("Closing conn");
-						//break;
+						break;
 					}
 				}
 			sleep();
